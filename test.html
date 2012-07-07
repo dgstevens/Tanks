@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<!--
+
+  Created using /
+  Source can be edited via /odoho3/edit
+
+-->
+<head>
+    <title>Simple game with HTML5 Canvas</title>
+  <style>
+    body {
+      margin:0px;
+      padding:0px;
+      text-align:center;
+    }
+    
+    canvas{
+      outline:0;
+      border:1px solid #000;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+<canvas id='c'></canvas>
+<script src="tank.js"></script>
+<script src="circShot.js"></script>
+<script src="background.js"></script>
+<script>
+var width = 720, height = 500, gLoop,
+	c = document.getElementById('c'), 
+	ctx = c.getContext('2d');
+	
+c.width = width;
+c.height = height;
+
+var t = new tank();
+var shots = [];
+var bg = new background();
+
+
+document.onkeydown = function(event) {
+	t.keyUpdate(event.keyCode);
+}
+
+document.onkeyup = function(event) {
+	if(event.keyCode == 32)
+	{
+		var new_shot = new circShot();
+		new_shot.initShot(t.shotCoords[0],t.shotCoords[1],20*Math.cos(t.gangle),-20*Math.sin(t.gangle),2,100);
+		shots.push(new_shot);
+	}
+	else
+		t.release(event.keyCode);
+}
+
+document.onkeypress = function(event) {
+	t.keyUpdate(event.keyCode);
+}
+
+
+//bg.initBG(ctx,c,3237);
+//bg.initBG(ctx,c,4656);
+//bg.initBG(ctx,c,1248);
+bg.initBG(ctx,c,5420);
+//bg.initBG(ctx,c,578);
+//bg.initBG(ctx,c,2858);
+//bg.initBG(ctx,c,8094);
+//bg.initBG(ctx,c,6675);
+//bg.initBG(ctx,c,229);
+//bg.initBG(ctx,c,Math.round(Math.random()*12345));
+
+t.init(600,20);
+
+/*
+var s0 = new circShot(); s0.initShot(182,94,32,-6,3,25); shots.push(s0);
+var s1 = new circShot(); s1.initShot(10,342,19,-7,4,19); shots.push(s1);
+var s2 = new circShot(); s2.initShot(200,293,6,-2,2,15); shots.push(s2);
+var s3 = new circShot(); s3.initShot(48,288,26,-3,4,21); shots.push(s3);
+var s4 = new circShot(); s4.initShot(158,63,7,-4,2,17); shots.push(s4);
+var s5 = new circShot(); s5.initShot(141,247,3,-17,3,7); shots.push(s5);
+var s6 = new circShot(); s6.initShot(179,191,21,-9,2,21); shots.push(s6);
+var s7 = new circShot(); s7.initShot(42,115,25,-9,2,9); shots.push(s7);
+var s8 = new circShot(); s8.initShot(77,60,21,-15,2,28); shots.push(s8);
+var s9 = new circShot(); s9.initShot(50,252,26,-10,3,13); shots.push(s9);
+var s10 = new circShot(); s10.initShot(52,188,5,-19,1,11); shots.push(s10);
+var s11 = new circShot(); s11.initShot(163,225,33,-16,4,25); shots.push(s11);
+var s12 = new circShot(); s12.initShot(15,292,11,-5,6,9); shots.push(s12);
+var s13 = new circShot(); s13.initShot(159,279,21,-8,4,15); shots.push(s13);
+var s14 = new circShot(); s14.initShot(64,307,34,-6,2,1); shots.push(s14);
+var s15 = new circShot(); s15.initShot(71,72,21,-5,3,13); shots.push(s15);
+var s16 = new circShot(); s16.initShot(101,221,0,-11,5,5); shots.push(s16);
+var s17 = new circShot(); s17.initShot(193,85,33,-11,2,21); shots.push(s17);
+var s18 = new circShot(); s18.initShot(158,148,30,-10,2,28); shots.push(s18);
+var s19 = new circShot(); s19.initShot(74,120,31,-6,6,27); shots.push(s19);
+var s20 = new circShot(); s20.initShot(67,271,24,-2,4,12); shots.push(s20);
+var s21 = new circShot(); s21.initShot(91,73,23,1,3,23); shots.push(s21);
+var s22 = new circShot(); s22.initShot(164,101,1,-12,6,29); shots.push(s22);
+var s23 = new circShot(); s23.initShot(112,63,28,-18,1,19); shots.push(s23);
+var s24 = new circShot(); s24.initShot(197,304,8,-6,1,28); shots.push(s24);
+var s25 = new circShot(); s25.initShot(154,217,5,-16,1,27); shots.push(s25);
+var s26 = new circShot(); s26.initShot(94,131,3,-6,2,20); shots.push(s26);
+var s27 = new circShot(); s27.initShot(101,263,2,-15,2,30); shots.push(s27);
+var s28 = new circShot(); s28.initShot(4,141,2,-14,3,30); shots.push(s28);
+var s29 = new circShot(); s29.initShot(167,139,23,-12,4,21); shots.push(s29);
+var s30 = new circShot(); s30.initShot(91,282,25,-4,4,30); shots.push(s30);
+var s31 = new circShot(); s31.initShot(186,190,23,-8,4,11); shots.push(s31);
+var s32 = new circShot(); s32.initShot(3,253,17,-7,6,16); shots.push(s32);
+var s33 = new circShot(); s33.initShot(85,151,5,-9,1,29); shots.push(s33);
+var s34 = new circShot(); s34.initShot(28,150,9,1,3,11); shots.push(s34);
+var s35 = new circShot(); s35.initShot(113,325,35,-16,4,2); shots.push(s35);
+var s36 = new circShot(); s36.initShot(1,268,21,-12,2,30); shots.push(s36);
+var s37 = new circShot(); s37.initShot(109,168,32,-6,2,4); shots.push(s37);
+var s38 = new circShot(); s38.initShot(7,115,1,-14,3,16); shots.push(s38);
+var s39 = new circShot(); s39.initShot(178,238,5,-4,5,31); shots.push(s39);
+var s40 = new circShot(); s40.initShot(171,175,14,-17,6,18); shots.push(s40);
+var s41 = new circShot(); s41.initShot(38,337,29,-2,2,26); shots.push(s41);
+var s42 = new circShot(); s42.initShot(48,241,16,-5,4,2); shots.push(s42);
+var s43 = new circShot(); s43.initShot(71,61,1,-12,5,23); shots.push(s43);
+var s44 = new circShot(); s44.initShot(44,210,1,-10,2,8); shots.push(s44);
+var s45 = new circShot(); s45.initShot(31,140,31,-3,4,5); shots.push(s45);
+var s46 = new circShot(); s46.initShot(114,74,10,-6,6,20); shots.push(s46);
+var s47 = new circShot(); s47.initShot(151,323,19,-4,3,12); shots.push(s47);
+var s48 = new circShot(); s48.initShot(172,254,1,-1,4,13); shots.push(s48);
+var s49 = new circShot(); s49.initShot(166,278,2,-13,5,22); shots.push(s49);
+*/
+
+/*
+var s1 = new circShot();
+var s2 = new circShot();
+var s3 = new circShot();
+var s4 = new circShot();
+var s5 = new circShot();
+var s6 = new circShot();
+var s7 = new circShot();
+var s8 = new circShot();
+var s9 = new circShot();
+var s0 = new circShot();
+s1.initShot(40,125,3,-1,4,31);
+s2.initShot(58,127,0,0,4,12);
+s3.initShot(31,103,10,-6,3,42);
+s4.initShot(94,194,3,-5,5,52);
+s5.initShot(54,164,0,-5,5,68);
+s6.initShot(33,181,8,-2,3,57);
+s7.initShot(80,175,19,-5,4,61);
+s8.initShot(91,144,15,-3,2,49);
+s9.initShot(60,114,12,-4,3,18);
+s0.initShot(68,140,8,-1,2,3);
+shots.push(s1);
+shots.push(s2);
+shots.push(s3);
+shots.push(s4);
+shots.push(s5);
+shots.push(s6);
+shots.push(s7);
+shots.push(s8);
+shots.push(s9);
+shots.push(s0);
+*/
+
+/*
+for(k = 0;k < 10;k++)
+{	
+	var new_shot = new circShot();
+	new_shot.initShot(Math.round(100*Math.random()),Math.round(100+100*Math.random()),Math.round(25*Math.random()),Math.round(-10*Math.random()+1),Math.round(5*Math.random()+1),Math.round(75*Math.random()+1));
+	shots.push(new_shot);
+}
+*/
+
+
+
+var GameLoop = function(){
+	bg.draw();
+	t.update();
+	/*
+	for(k = 0;k < 1;k++)
+	{	
+		var a = Math.round(150*Math.random());
+		var b = Math.round(100*Math.random());
+		var g = Math.round(20*Math.random());
+		var d = Math.round(-15*Math.random()+1);
+		var e = Math.round(5*Math.random()+2);
+		var f = Math.round(30*Math.random()+1);
+		//console.log(k + " " + a + "," + b + "," + g + "," + d + "," + e + "," + f);
+		var new_shot = new circShot();
+		new_shot.initShot(a,b,g,d,e,f);
+		shots.push(new_shot);
+	}
+	*/
+	for(sindex=0;sindex<shots.length;sindex++)
+	{
+		switch(shots[sindex].update(bg.height,bg.colDebris))
+		{
+			case -1:
+				shots.splice(sindex,1);
+				sindex--;
+				break;
+			case 0:
+				break;
+			case 2:
+				//console.log("damage!");
+				bg.addDamage(shots[sindex].getDamage());
+				break;
+			case 1:
+				//bg.addDamage(shots[sindex].getDamage());
+				shots.splice(sindex,1);
+				sindex--;
+				break;
+				
+		}
+	}
+  
+	gLoop = setTimeout(GameLoop, 1000 / 25);
+}
+
+GameLoop();
+
+
+</script>
+<script>var _gaq=[['_setAccount','UA-1656750-13'],['_trackPageview']];(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.src='//www.google-analytics.com/ga.js';s.parentNode.insertBefore(g,s)})(document,'script')</script></body>
+</html>
