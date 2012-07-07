@@ -59,8 +59,8 @@ function background() {
 		}
 		
 		
-	//	for(index = 0;index < c.width;index++)
-		//	height[index] = Math.round(c.height-tempHeight[index]);
+		for(index = 0;index < c.width;index++)
+			height[index] = Math.round(c.height-tempHeight[index]);
 			
 	//		height[index] = 200; 
 	//	for(index = 280;index < 320; index++)
@@ -69,12 +69,12 @@ function background() {
 		for(index = 310;index < 320;index++)
 			height[index] -= (5 - Math.abs(index - 315));
 		*/
-		/**/
+		/*
 		for(index = 0; index < c.width; index++)
 			if(index > 200)
 				height[index] = 200;
 			else
-				height[index] = 400;
+				height[index] = 400;*/
 	};
 	
 	this.initBG = function(ctx,c,seed) {

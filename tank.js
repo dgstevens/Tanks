@@ -447,122 +447,122 @@ function tank() {
 	}
 	
 	this.updateAngle = function() {
-		//find the minimum ground coordinate (highest ground) under the tank
-		var min = -1;
-		var min_height = 10000;
-		var bottomRange = firstX;
-		var topRange = (radius6*Math.cos(bangle - Math.PI/2 + ang7)) + this.x;
+		var searchAngle = bangle;
+		var accumulator = 0;
+		var counter = 0;
 		
-		var upLimit = (treHeight + height/2)/Math.cos(bangle);
-		for(minSearch=Math.round(bottomRange);minSearch<=topRange;minSearch++)
-		{	
-			//TODO: maybe make the minus proportional
-			//if((minSearch < this.x && bg.height[minSearch] < (this.y - rotOffsets[33] - treHeight/3))
-				//	|| (minSearch > this.x && bg.height[minSearch] < (this.y - rotOffsets[31] - treHeight/3)))
+		do
+		{
+			//find the minimum ground coordinate (highest ground) under the tank
+			var min = -1;
+			var min_height = 10000;
+			var bottomRange = Math.round((radius6*Math.cos(searchAngle - Math.PI/2 - ang7)) + this.x);
+			var topRange = (radius6*Math.cos(searchAngle - Math.PI/2 + ang7)) + this.x;
 			
-			if(bg.height[minSearch] < (bottomPos[minSearch - this.x] - upLimit))
-			{
-				//if(debug)
-					//console.log("skip " + bg.height[minSearch] + " " + (searchY - upLimit));
-			//	continue;
-			}
-			if(bg.height[minSearch] <= min_height)
-			{
-				if(bg.height[minSearch] < min_height ||  (Math.abs(minSearch - this.x) <= Math.abs(min - this.x)))
+			for(minSearch=Math.round(bottomRange);minSearch<=topRange;minSearch++)
+			{	
+				//TODO: ignore ones that are way too high
+				if(bg.height[minSearch] <= min_height)
 				{
-					min = minSearch;
-					min_height = bg.height[min];
+					if(bg.height[minSearch] < min_height ||  (Math.abs(minSearch - this.x) <= Math.abs(min - this.x)))
+					{
+						min = minSearch;
+						min_height = bg.height[min];
+					}
 				}
 			}
-		}
-		minUnder = min;
+			minUnder = min;
 
 
-		//TODO deal with rotational speed
-		if(min > this.x || (this.x == min && bangle > 0))
-		{
-			var searchMin = Math.min(this.x,bottomRange);
-			var loopCond = Math.max(this.x,bottomRange);
-			var edgeRight = -1, edgeLeft = min;
-			do
+			//TODO deal with rotational speed
+			if(min > this.x || (this.x == min && searchAngle > 0))
 			{
-				var tempLE, tempLET = 10000;
-				for(posx = edgeLeft-1;posx >= searchMin; posx--)
+				var searchMin = Math.min(this.x,bottomRange);
+				var loopCond = Math.max(this.x,bottomRange);
+				var edgeRight = -1, edgeLeft = min;
+				do
 				{
-					posT = Math.atan((bg.height[posx] - bg.height[min])/(min - posx));
-					if(posT < tempLET)
+					var tempLE, tempLET = 10000;
+					for(posx = edgeLeft-1;posx >= searchMin; posx--)
 					{
-						tempLE = posx;
-						tempLET = posT;
+						posT = Math.atan((bg.height[posx] - bg.height[min])/(min - posx));
+						if(posT < tempLET)
+						{
+							tempLE = posx;
+							tempLET = posT;
+						}
 					}
-				}
-				
-				var estLE = tempLE, estLET = tempLET;
+					
+					var estLE = tempLE, estLET = tempLET;
 
-				for(posx = tempLE-1;posx >= searchMin; posx--)
-				{
-					var slope = (bg.height[min] - bg.height[posx])/(min - posx);
-					//Try stepping further out, change bounds
-					var hDist = min - tempLE;
-					var diff = (bg.height[min] + (hDist * slope)) - bg.height[tempLE];
-					if(diff < height/6)
-					{	
-						estLE = posx;
-						estLET = Math.atan(slope);
+					for(posx = tempLE-1;posx >= searchMin; posx--)
+					{
+						var slope = (bg.height[min] - bg.height[posx])/(min - posx);
+						//Try stepping further out, change bounds
+						var hDist = min - tempLE;
+						var diff = (bg.height[min] + (hDist * slope)) - bg.height[tempLE];
+						if(diff < height/6)
+						{	
+							estLE = posx;
+							estLET = Math.atan(slope);
+						}
 					}
-				}
-				edgeRight = edgeLeft;
-				edgeLeft = estLE;
-				underLength = edgeRight - edgeLeft;
-			} while(edgeLeft > loopCond)
-		}
-		else if(min < this.x || (this.x == min && bangle < 0))
-		{
-			var searchMax = Math.max(this.x,topRange);
-			var loopCond = Math.min(this.x,topRange);
-			var edgeRight = min, edgeLeft = -1;
-			do
+					edgeRight = edgeLeft;
+					edgeLeft = estLE;
+					underLength = edgeRight - edgeLeft;
+				} while(edgeLeft > loopCond)
+			}
+			else if(min < this.x || (this.x == min && searchAngle < 0))
 			{
-				var tempRE, tempRET = 10000;
-				for(posx = edgeRight+1;posx <= searchMax; posx++)
+				var searchMax = Math.max(this.x,topRange);
+				var loopCond = Math.min(this.x,topRange);
+				var edgeRight = min, edgeLeft = -1;
+				do
 				{
-					posT = Math.atan((bg.height[posx] - bg.height[min])/(posx - min));
-					if(posT < tempRET)
+					var tempRE, tempRET = 10000;
+					for(posx = edgeRight+1;posx <= searchMax; posx++)
 					{
-						tempRE = posx;
-						tempRET = posT;
+						posT = Math.atan((bg.height[posx] - bg.height[min])/(posx - min));
+						if(posT < tempRET)
+						{
+							tempRE = posx;
+							tempRET = posT;
+						}
 					}
-				}
-				
-				var estRE = tempRE, estRET = tempRET;
+					
+					var estRE = tempRE, estRET = tempRET;
 
-				for(posx = tempRE+1;posx <= searchMax; posx++)
-				{
-					var slope = (bg.height[min] - bg.height[posx])/(min - posx);
-					//Try stepping further out, change bounds
-					var hDist = min - tempRE;
-					var diff = (bg.height[min] + (hDist * slope)) - bg.height[tempRE];
-					if(diff < height/6)
-					{	
-						estRE = posx;
-						estRET = Math.atan(slope);
+					for(posx = tempRE+1;posx <= searchMax; posx++)
+					{
+						var slope = (bg.height[min] - bg.height[posx])/(min - posx);
+						//Try stepping further out, change bounds
+						var hDist = min - tempRE;
+						var diff = (bg.height[min] + (hDist * slope)) - bg.height[tempRE];
+						if(diff < height/6)
+						{	
+							estRE = posx;
+							estRET = Math.atan(slope);
+						}
 					}
-				}
-				edgeLeft = edgeRight;
-				edgeRight = estRE;
+					edgeLeft = edgeRight;
+					edgeRight = estRE;
+					underLength = -1 * (edgeRight - edgeLeft);
+				} while(edgeRight < loopCond)
 				underLength = -1 * (edgeRight - edgeLeft);
-			} while(edgeRight < loopCond)
-			underLength = -1 * (edgeRight - edgeLeft);
-		}
-		else //min == this.x && bangle == 0
-		{
-			newAngle = 0;
-			underLength = topRange - bottomRange;
-			this.updateBottom();
-			return;
-		}
+			}
+			else //min == this.x && searchAngle == 0
+			{
+				searchAngle = 0;
+				accumulator += searchAngle;
+				continue;
+			}
+				
+			searchAngle = normalize(-1*Math.atan((bg.height[edgeRight] - bg.height[edgeLeft])/(edgeRight - edgeLeft)));
+			accumulator += searchAngle;
+
+		} while(++counter < 4)
 		
-		newAngle = normalize(-1*Math.atan((bg.height[edgeRight] - bg.height[edgeLeft])/(edgeRight - edgeLeft)));
+		newAngle = accumulator/counter;
 		
 		if(rotSpeed > 0 && rotSpeed + bangle > newAngle)
 		{
