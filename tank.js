@@ -2,10 +2,11 @@ function tank() {
 	var radius1, radius2, radius3, radius4, radius5, radius6, radius7;
 	var ang1, ang2, ang3, ang4, ang5, ang6, ang7, ang8;
 	
-	var height = 6, width = 25; //height and width of the body
+	var height = 6, width = 4*height; //height and width of the body
 	var treHeight = Math.round(6/10*height), turcp = Math.round(6/4*height); //height of the turret, and positions of the control points for the curved ends.
 	var turLen = (6/10)*width;
 	var turWidth = Math.max(height/5,2);
+	var maxTurn = (7/16*Math.PI)/(width/5)
 
 	var drawbangle; //Angle we'll draw the tank at
 	var bangle;  //Angle of the tank's body. Positive tilts the left side down, negative tilts the right side down
@@ -218,7 +219,6 @@ function tank() {
 			console.log("Updating Tank...");
 
 		//this.updateAngle();
-		this.calcMinDiff();
 
 		if(angledebug)
 			console.log("banlge: " + bangle + " rotSpeed: " + rotSpeed + " deltaY: " + deltaY);
@@ -251,12 +251,13 @@ function tank() {
 			drawbangle = bangle;
 		}
 		
+		this.calcMinDiff();
 		if(debug)
 			console.log("this.y: " + this.y);
 		
 		var treadBottom = (height/2+treHeight/2)/Math.cos(bangle);
-		var bottomOffset = ((this.x - minUnder)*Math.tan(bangle));
-		this.y = Math.round(bg.height[minUnder] - bottomOffset - treadBottom);
+		var bottomOffset = ((this.x - minDiffX)*Math.tan(bangle));
+		this.y = Math.round(bg.height[minDiffX] - bottomOffset - treadBottom);
 		
 		if(debug)
 			console.log("this.y: " + this.y + " treadBottom: " + treadBottom + " bottomOffset: " + bottomOffset + " this.x: " + this.x + " minUnder: " + minUnder + " bangle: " + bangle + " tan(bangle): " + Math.tan(bangle));
@@ -456,15 +457,16 @@ function tank() {
 			//find the minimum ground coordinate (highest ground) under the tank
 			var min = -1;
 			var min_height = 10000;
-			var bottomRange = Math.round((radius6*Math.cos(searchAngle - Math.PI/2 - ang7)) + this.x);
-			var topRange = (radius6*Math.cos(searchAngle - Math.PI/2 + ang7)) + this.x;
+			var CoM = this.x + height/3*Math.cos(searchAngle - Math.PI/2);
+			var bottomRange = Math.round((radius6*Math.cos(searchAngle - Math.PI/2 - ang7)) + CoM);
+			var topRange = (radius6*Math.cos(searchAngle - Math.PI/2 + ang7)) + CoM;
 			
 			for(minSearch=Math.round(bottomRange);minSearch<=topRange;minSearch++)
 			{	
 				//TODO: ignore ones that are way too high
 				if(bg.height[minSearch] <= min_height)
 				{
-					if(bg.height[minSearch] < min_height ||  (Math.abs(minSearch - this.x) <= Math.abs(min - this.x)))
+					if(bg.height[minSearch] < min_height ||  (Math.abs(minSearch - CoM) <= Math.abs(min - CoM)))
 					{
 						min = minSearch;
 						min_height = bg.height[min];
@@ -473,12 +475,11 @@ function tank() {
 			}
 			minUnder = min;
 
-
 			//TODO deal with rotational speed
-			if(min > this.x || (this.x == min && searchAngle > 0))
+			if(min > CoM || (CoM == min && searchAngle > 0))
 			{
-				var searchMin = Math.min(this.x,bottomRange);
-				var loopCond = Math.max(this.x,bottomRange);
+				var searchMin = Math.round(Math.min(CoM,bottomRange));
+				var loopCond = Math.round(Math.max(CoM,bottomRange));
 				var edgeRight = -1, edgeLeft = min;
 				do
 				{
@@ -499,9 +500,9 @@ function tank() {
 					{
 						var slope = (bg.height[min] - bg.height[posx])/(min - posx);
 						//Try stepping further out, change bounds
-						var hDist = min - tempLE;
+						var hDist = tempLE - min;
 						var diff = (bg.height[min] + (hDist * slope)) - bg.height[tempLE];
-						if(diff < height/6)
+						if(diff/width*5 < height/6)
 						{	
 							estLE = posx;
 							estLET = Math.atan(slope);
@@ -509,13 +510,12 @@ function tank() {
 					}
 					edgeRight = edgeLeft;
 					edgeLeft = estLE;
-					underLength = edgeRight - edgeLeft;
-				} while(edgeLeft > loopCond)
+				} while(edgeLeft > loopCond);
 			}
-			else if(min < this.x || (this.x == min && searchAngle < 0))
+			else if(min < CoM || (CoM == min && searchAngle < 0))
 			{
-				var searchMax = Math.max(this.x,topRange);
-				var loopCond = Math.min(this.x,topRange);
+				var searchMax = Math.round(Math.max(CoM,topRange));
+				var loopCond = Math.round(Math.min(CoM,topRange));
 				var edgeRight = min, edgeLeft = -1;
 				do
 				{
@@ -535,10 +535,10 @@ function tank() {
 					for(posx = tempRE+1;posx <= searchMax; posx++)
 					{
 						var slope = (bg.height[min] - bg.height[posx])/(min - posx);
-						//Try stepping further out, change bounds
-						var hDist = min - tempRE;
+						//Try stepping further o5ut, change bounds
+						var hDist = tempRE - min;
 						var diff = (bg.height[min] + (hDist * slope)) - bg.height[tempRE];
-						if(diff < height/6)
+						if(diff/width*5 < height/6)
 						{	
 							estRE = posx;
 							estRET = Math.atan(slope);
@@ -546,11 +546,9 @@ function tank() {
 					}
 					edgeLeft = edgeRight;
 					edgeRight = estRE;
-					underLength = -1 * (edgeRight - edgeLeft);
-				} while(edgeRight < loopCond)
-				underLength = -1 * (edgeRight - edgeLeft);
+				} while(edgeRight < loopCond);
 			}
-			else //min == this.x && searchAngle == 0
+			else //min == CoM && searchAngle == 0
 			{
 				searchAngle = 0;
 				accumulator += searchAngle;
@@ -560,7 +558,7 @@ function tank() {
 			searchAngle = normalize(-1*Math.atan((bg.height[edgeRight] - bg.height[edgeLeft])/(edgeRight - edgeLeft)));
 			accumulator += searchAngle;
 
-		} while(++counter < 4)
+		} while(++counter < 4);
 		
 		newAngle = accumulator/counter;
 		
@@ -634,7 +632,7 @@ function tank() {
 		if(deltaX > 0)
 		{
 			var treadBottom = (height/2+treHeight/2)/Math.cos(bangle);
-			var bottomOffset = (((radius6*Math.cos(bangle - Math.PI/2 + ang7)) + 1)*Math.tan(normalize(bangle + ((bangle >= 0) ? .175 : 0.35))));
+			var bottomOffset = (((radius6*Math.cos(bangle - Math.PI/2 + ang7)) + 1)*Math.tan(normalize(bangle + ((bangle >= 0) ? maxTurn : 2*maxTurn))));
 			if(debug)
 			{
 				console.log(bg.height.length + " " + (this.x + rotOffsets[30] + 1));
@@ -647,7 +645,7 @@ function tank() {
 		else if(deltaX < 0)
 		{
 			var treadBottom = (height/2+treHeight/2)/Math.cos(bangle);
-			var bottomOffset = (((radius6*Math.cos(bangle - Math.PI/2 - ang7)) - 1)*Math.tan(normalize(bangle + ((bangle >= 0) ? -.35 : -0.175))));
+			var bottomOffset = (((radius6*Math.cos(bangle - Math.PI/2 - ang7)) - 1)*Math.tan(normalize(bangle + ((bangle >= 0) ? -2*maxTurn : -1*maxTurn))));
 			/*
 			if(bangle >=0)
 				var bottomOffset = (((radius6*Math.cos(bangle - Math.PI/2 - ang7)) - 1)*Math.tan(normalize(bangle +  -0.35)));
@@ -668,8 +666,8 @@ function tank() {
 	this.keyUpdate = function(d) {
 		switch(d)
 		{
-		//	case 32: willdraw = !willdraw; break;
-			case 83: console.log("here"); drawbangle = bangle; break;
+			case 72: willdraw = !willdraw; break;
+			case 83: drawbangle = bangle; break;
 			case 77: mark = (mark + 1) % 3; break;
 			case 68: debug = !debug; break;
 			case 65: angledebug = !angledebug; break;
